@@ -1,0 +1,95 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint", "import"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/explicit-function-return-type": [
+      "warn",
+      { "allowExpressions": true }
+    ],
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
+
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling", "index"]
+        ],
+        "pathGroups": [
+          { "pattern": "@/domain/**", "group": "internal", "position": "before" },
+          { "pattern": "@/application/**", "group": "internal" },
+          { "pattern": "@/infrastructure/**", "group": "internal", "position": "after" },
+          { "pattern": "@/interfaces/**", "group": "internal", "position": "after" }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin"],
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ],
+    "import/no-cycle": "error",
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/domain",
+            "from": ["./src/application", "./src/infrastructure", "./src/interfaces"],
+            "message": "Domain must not import from outer layers."
+          },
+          {
+            "target": "./src/application",
+            "from": ["./src/infrastructure", "./src/interfaces"],
+            "message": "Application must not import from infrastructure or interfaces."
+          },
+          {
+            "target": "./src/interfaces",
+            "from": ["./src/infrastructure"],
+            "message": "Interfaces must not import directly from infrastructure."
+          },
+          {
+            "target": "./src/domain",
+            "from": "./src/infrastructure",
+            "message": "Domain must not import from infrastructure."
+          }
+        ]
+      }
+    ],
+
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "TSEnumDeclaration",
+        "message": "Use const objects with 'as const' instead of enums."
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json"
+      }
+    }
+  }
+}
