@@ -1,8 +1,9 @@
 /**
  * GetGroupBalancesUseCase
  *
- * Computes the net balance for every group member and
- * suggests a minimal set of payments to settle all debts.
+ * Computes the minimum set of transfers required to settle every member's
+ * balance within a group. Returns one entry per recommended transfer:
+ *   { from_user_id, to_user_id, amount }
  *
  * Layer: Application
  */
@@ -15,7 +16,7 @@ import { GroupId } from '@/domain/value-objects/GroupId';
 
 import type {
   GetGroupBalancesDto,
-  GroupBalancesResponseDto,
+  SettlementResponseDto,
 } from '../../dtos/BalanceDto';
 
 export class GetGroupBalancesUseCase {
@@ -26,7 +27,7 @@ export class GetGroupBalancesUseCase {
     private readonly expenseRepository: IExpenseRepository,
   ) {}
 
-  async execute(dto: GetGroupBalancesDto): Promise<GroupBalancesResponseDto> {
+  async execute(dto: GetGroupBalancesDto): Promise<SettlementResponseDto[]> {
     const groupId = GroupId.create(dto.groupId);
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
@@ -34,23 +35,13 @@ export class GetGroupBalancesUseCase {
     }
 
     const expenses = await this.expenseRepository.findByGroupId(groupId);
-
     const balances = this.calculator.computeBalances(expenses);
     const settlements = this.calculator.minimiseSettlements(balances);
 
-    return {
-      groupId: dto.groupId,
-      balances: balances.map((b) => ({
-        userId: b.userId.value,
-        netAmountInCents: b.netCents,
-        currency: b.currency,
-      })),
-      settlements: settlements.map((s) => ({
-        fromUserId: s.fromUserId.value,
-        toUserId: s.toUserId.value,
-        amountInCents: s.amountCents,
-        currency: s.currency,
-      })),
-    };
+    return settlements.map((s) => ({
+      from_user_id: s.fromUserId.value,
+      to_user_id: s.toUserId.value,
+      amount: s.amountCents,
+    }));
   }
 }

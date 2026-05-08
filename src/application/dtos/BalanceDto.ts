@@ -8,22 +8,9 @@ export interface GetGroupBalancesDto {
   readonly groupId: string;
 }
 
-export interface UserBalanceResponseDto {
-  readonly userId: string;
-  /** Positive = owed money; negative = owes money. */
-  readonly netAmountInCents: number;
-  readonly currency: string;
-}
-
 export interface SettlementResponseDto {
-  readonly fromUserId: string;
-  readonly toUserId: string;
-  readonly amountInCents: number;
-  readonly currency: string;
-}
-
-export interface GroupBalancesResponseDto {
-  readonly groupId: string;
-  readonly balances: UserBalanceResponseDto[];
-  readonly settlements: SettlementResponseDto[];
+  readonly from_user_id: string;
+  readonly to_user_id: string;
+  /** Amount in the smallest currency unit (cents). */
+  readonly amount: number;
 }
