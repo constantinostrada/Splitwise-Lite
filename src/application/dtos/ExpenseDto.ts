@@ -2,25 +2,23 @@
  * Expense DTOs
  *
  * Layer: Application
+ *
+ * HTTP boundary uses snake_case for inputs/outputs (paid_by_user_id,
+ * split_among_user_ids, share_amount, group_id, created_at). Domain stays
+ * camelCase; mappers translate.
+ *
+ * Amounts are integer counts of the smallest currency unit (cents) to align
+ * with the persistence schema and the Money value object.
  */
 
 // ── Input DTOs ───────────────────────────────────────────────────────────────
 
-export interface SplitShareInputDto {
-  readonly userId: string;
-  /** Amount in the smallest currency unit (e.g. cents). */
-  readonly amountInCents: number;
-}
-
 export interface AddExpenseDto {
   readonly groupId: string;
-  readonly payerId: string;
-  /** Total amount in smallest currency unit (e.g. cents). */
-  readonly amountInCents: number;
-  readonly currency: string;
+  readonly paid_by_user_id: string;
+  readonly amount: number;
   readonly description: string;
-  /** How the expense is split among members. Must sum to amountInCents. */
-  readonly splits: SplitShareInputDto[];
+  readonly split_among_user_ids?: ReadonlyArray<string>;
 }
 
 export interface GetExpensesByGroupDto {
@@ -30,18 +28,16 @@ export interface GetExpensesByGroupDto {
 // ── Output DTOs ──────────────────────────────────────────────────────────────
 
 export interface SplitShareResponseDto {
-  readonly userId: string;
-  readonly amountInCents: number;
-  readonly currency: string;
+  readonly user_id: string;
+  readonly share_amount: number;
 }
 
 export interface ExpenseResponseDto {
   readonly id: string;
-  readonly groupId: string;
-  readonly payerId: string;
-  readonly amountInCents: number;
-  readonly currency: string;
+  readonly group_id: string;
+  readonly paid_by_user_id: string;
+  readonly amount: number;
   readonly description: string;
-  readonly splits: SplitShareResponseDto[];
-  readonly createdAt: string; // ISO 8601
+  readonly splits: ReadonlyArray<SplitShareResponseDto>;
+  readonly created_at: string;
 }

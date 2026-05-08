@@ -40,79 +40,52 @@ async function buildContext() {
   });
   await addMember.execute({ groupId: group.id, user_id: bob.id });
 
-  return { alice, bob, group, addExpense };
+  return { alice, bob, group, addExpense, expenseRepo };
 }
 
 describe('AddExpenseUseCase', () => {
-  it('adds an expense and returns a DTO', async () => {
+  it('adds an expense and returns a DTO with snake_case fields', async () => {
     const { alice, bob, group, addExpense } = await buildContext();
 
     const result = await addExpense.execute({
       groupId: group.id,
-      payerId: alice.id,
-      amountInCents: 6000,
-      currency: 'USD',
+      paid_by_user_id: alice.id,
+      amount: 6000,
       description: 'Dinner',
-      splits: [
-        { userId: alice.id, amountInCents: 3000 },
-        { userId: bob.id,   amountInCents: 3000 },
-      ],
+      split_among_user_ids: [alice.id, bob.id],
     });
 
     expect(result.description).toBe('Dinner');
-    expect(result.amountInCents).toBe(6000);
-    expect(result.currency).toBe('USD');
-    expect(result.payerId).toBe(alice.id);
+    expect(result.amount).toBe(6000);
+    expect(result.paid_by_user_id).toBe(alice.id);
+    expect(result.group_id).toBe(group.id);
     expect(result.splits).toHaveLength(2);
+    expect(result.splits[0]).toEqual({ user_id: alice.id, share_amount: 3000 });
+    expect(result.splits[1]).toEqual({ user_id: bob.id, share_amount: 3000 });
   });
 
   it('throws when the group does not exist', async () => {
-    const { alice, bob, addExpense } = await buildContext();
+    const { alice, addExpense } = await buildContext();
     await expect(
       addExpense.execute({
         groupId: 'nonexistent',
-        payerId: alice.id,
-        amountInCents: 1000,
-        currency: 'USD',
+        paid_by_user_id: alice.id,
+        amount: 1000,
         description: 'Test',
-        splits: [
-          { userId: alice.id, amountInCents: 500 },
-          { userId: bob.id,   amountInCents: 500 },
-        ],
+        split_among_user_ids: [alice.id],
       }),
     ).rejects.toThrow('nonexistent');
   });
 
-  it('throws when splits do not sum to the total amount', async () => {
-    const { alice, bob, group, addExpense } = await buildContext();
-    await expect(
-      addExpense.execute({
-        groupId: group.id,
-        payerId: alice.id,
-        amountInCents: 6000,
-        currency: 'USD',
-        description: 'Dinner',
-        splits: [
-          { userId: alice.id, amountInCents: 3000 },
-          { userId: bob.id,   amountInCents: 2000 }, // wrong total
-        ],
-      }),
-    ).rejects.toThrow();
-  });
-
-  it('throws when a split participant is not a group member', async () => {
+  it('throws when a participant is not a group member', async () => {
     const { alice, group, addExpense } = await buildContext();
     await expect(
       addExpense.execute({
         groupId: group.id,
-        payerId: alice.id,
-        amountInCents: 2000,
-        currency: 'USD',
+        paid_by_user_id: alice.id,
+        amount: 2000,
         description: 'Lunch',
-        splits: [
-          { userId: alice.id,    amountInCents: 1000 },
-          { userId: 'outsider',  amountInCents: 1000 },
-        ],
+        split_among_user_ids: [alice.id, 'outsider'],
       }),
     ).rejects.toThrow();
   });
