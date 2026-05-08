@@ -13,6 +13,7 @@
 import { AddExpenseUseCase } from '@/application/use-cases/expense/AddExpenseUseCase';
 import { GetGroupExpensesUseCase } from '@/application/use-cases/expense/GetGroupExpensesUseCase';
 import { GetGroupBalancesUseCase } from '@/application/use-cases/balance/GetGroupBalancesUseCase';
+import { AddMemberToGroupUseCase } from '@/application/use-cases/group/AddMemberToGroupUseCase';
 import { CreateGroupUseCase } from '@/application/use-cases/group/CreateGroupUseCase';
 import { GetGroupByIdUseCase } from '@/application/use-cases/group/GetGroupByIdUseCase';
 import { CreateUserUseCase } from '@/application/use-cases/user/CreateUserUseCase';
@@ -53,7 +54,11 @@ export function makeCreateGroupUseCase(): CreateGroupUseCase {
 }
 
 export function makeGetGroupByIdUseCase(): GetGroupByIdUseCase {
-  return new GetGroupByIdUseCase(groupRepository);
+  return new GetGroupByIdUseCase(groupRepository, userRepository);
+}
+
+export function makeAddMemberToGroupUseCase(): AddMemberToGroupUseCase {
+  return new AddMemberToGroupUseCase(groupRepository, userRepository);
 }
 
 export function makeAddExpenseUseCase(): AddExpenseUseCase {

@@ -8,6 +8,7 @@ import { InMemoryExpenseRepository } from '@/infrastructure/persistence/InMemory
 import { InMemoryGroupRepository } from '@/infrastructure/persistence/InMemoryGroupRepository';
 import { InMemoryUserRepository } from '@/infrastructure/persistence/InMemoryUserRepository';
 
+import { AddMemberToGroupUseCase } from '../use-cases/group/AddMemberToGroupUseCase';
 import { CreateGroupUseCase } from '../use-cases/group/CreateGroupUseCase';
 import { CreateUserUseCase } from '../use-cases/user/CreateUserUseCase';
 import { AddExpenseUseCase } from '../use-cases/expense/AddExpenseUseCase';
@@ -28,14 +29,16 @@ async function buildContext() {
 
   const createUser = new CreateUserUseCase(userRepo, idGen);
   const createGroup = new CreateGroupUseCase(groupRepo, userRepo, idGen);
+  const addMember = new AddMemberToGroupUseCase(groupRepo, userRepo);
   const addExpense = new AddExpenseUseCase(expenseRepo, groupRepo, idGen);
 
   const alice = await createUser.execute({ name: 'Alice', email: 'alice@example.com' });
   const bob   = await createUser.execute({ name: 'Bob',   email: 'bob@example.com' });
   const group = await createGroup.execute({
     name: 'Test Group',
-    memberIds: [alice.id, bob.id],
+    owner_user_id: alice.id,
   });
+  await addMember.execute({ groupId: group.id, user_id: bob.id });
 
   return { alice, bob, group, addExpense };
 }
