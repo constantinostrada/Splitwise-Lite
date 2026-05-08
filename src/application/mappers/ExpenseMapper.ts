@@ -12,17 +12,15 @@ export class ExpenseMapper {
   static toResponseDto(expense: Expense): ExpenseResponseDto {
     return {
       id: expense.id.value,
-      groupId: expense.groupId.value,
-      payerId: expense.payerId.value,
-      amountInCents: expense.amount.amountInCents,
-      currency: expense.amount.currency,
+      group_id: expense.groupId.value,
+      paid_by_user_id: expense.payerId.value,
+      amount: expense.amount.amountInCents,
       description: expense.description,
       splits: expense.splits.map((s) => ({
-        userId: s.userId.value,
-        amountInCents: s.share.amountInCents,
-        currency: s.share.currency,
+        user_id: s.userId.value,
+        share_amount: s.share.amountInCents,
       })),
-      createdAt: expense.createdAt.toISOString(),
+      created_at: expense.createdAt.toISOString(),
     };
   }
 }
