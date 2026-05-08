@@ -54,3 +54,12 @@ coverage/
 # TypeScript incremental compile cache
 *.tsbuildinfo
 next-env.d.ts
+
+# Local SQLite databases
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
