@@ -170,7 +170,8 @@ describe('Expenses AC suite', () => {
       split_among_user_ids: [alice.id, bob.id, carol.id],
     });
 
-    const expenses = await getGroupExpenses.execute({ groupId: group.id });
+    const page = await getGroupExpenses.execute({ groupId: group.id });
+    const expenses = page.items;
 
     expect(expenses).toHaveLength(2);
     for (const exp of expenses) {

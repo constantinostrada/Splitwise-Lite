@@ -21,8 +21,16 @@ export interface AddExpenseDto {
   readonly split_among_user_ids?: ReadonlyArray<string>;
 }
 
+export type ExpensesSortOrder = 'amount_desc';
+
 export interface GetExpensesByGroupDto {
   readonly groupId: string;
+  readonly date_from?: string;
+  readonly date_to?: string;
+  readonly paid_by_user_id?: string;
+  readonly sort?: ExpensesSortOrder;
+  readonly limit?: number;
+  readonly offset?: number;
 }
 
 // ── Output DTOs ──────────────────────────────────────────────────────────────
@@ -40,4 +48,11 @@ export interface ExpenseResponseDto {
   readonly description: string;
   readonly splits: ReadonlyArray<SplitShareResponseDto>;
   readonly created_at: string;
+}
+
+export interface ExpensesPageResponseDto {
+  readonly items: ReadonlyArray<ExpenseResponseDto>;
+  readonly total: number;
+  readonly limit: number;
+  readonly offset: number;
 }
