@@ -1,0 +1,1 @@
+Hello from chiron daemon — first end-to-end test 2026-05-12
